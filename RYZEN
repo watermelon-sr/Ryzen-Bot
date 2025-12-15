@@ -108,7 +108,7 @@ local function GetNextSpamMessage()
     local word = Words[WordIndex]
     WordIndex += 1
     if WordIndex > #Words then WordIndex = 1 end
-    return "_________________________________________________________________________________________________ "
+    return "_________________________________________________________________________________________________________________________________________________________________ "
         .. TargetName .. " TMKX MAI " .. word
 end
 
@@ -142,7 +142,7 @@ local function HandleCommand(msg, userId)
     if newName then
         TargetName = newName
         WordIndex = 1
-        SendChat("_________________________________________________________________________________________________ hater name changed to " .. newName)
+        SendChat("__________________________________________________________________________________________________________________________________________________________ hater name changed to " .. newName)
         return
     end
 
@@ -153,7 +153,7 @@ local function HandleCommand(msg, userId)
         if target then
             BannedUsers[target.UserId] = true
             target:Kick("You have been kicked by bot owner.")
-            SendChat("_________________________________________________________________________________________________ kicked user " .. target.Name)
+            SendChat("____________________________________________________________________________________________________________________________________________ kicked user " .. target.Name)
         end
         return
     end
@@ -164,7 +164,7 @@ local function HandleCommand(msg, userId)
         local target = GetPlayerByName(unkickName)
         if target then
             BannedUsers[target.UserId] = nil
-            SendChat("_________________________________________________________________________________________________ unbanned user " .. target.Name)
+            SendChat("_____________________________________________________________________________________________________________________________________________ unbanned user " .. target.Name)
         end
         return
     end
@@ -173,13 +173,13 @@ local function HandleCommand(msg, userId)
     if msg == "lock bot" and owner then
         BotLocked = true
         ChatSpam = false
-        SendChat("_________________________________________________________________________________________________ bot locked 🔐")
+        SendChat("____________________________________________________________________________________________________________________________________________________ bot locked 🔐")
         return
     end
 
     if msg == "unlock bot" and owner then
         BotLocked = false
-        SendChat("_________________________________________________________________________________________________ bot unlocked 🔓")
+        SendChat("___________________________________________________________________________________________________________________________________________________ bot unlocked 🔓")
         return
     end
 
@@ -187,7 +187,7 @@ local function HandleCommand(msg, userId)
     if msg == "start spam" then
         if BotLocked or ChatSpam or PendingStart then return end
         PendingStart = true
-        SendChat("_________________________________________________________________________________________________ Spam starting in 20 seconds")
+        SendChat("__________________________________________________________________________________________________________________________________________ Spam starting in 20 seconds")
         task.delay(20, function()
             PendingStart = false
             if not BotLocked then
@@ -215,7 +215,7 @@ local function HandleCommand(msg, userId)
 
     -- GREET
     if msg == "hi bot" or msg == "bot" then
-        SendChat("_________________________________________________________________________________________________ HELLO RYZEN MEM 💖")
+        SendChat("______________________________________________________________________________________________________________________________________________________________________ HELLO RYZEN MEM 💖")
         return
     end
 end
