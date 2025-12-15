@@ -1,0 +1,225 @@
+--====================================================
+-- REX CHAT BOT | DELTA SAFE | FINAL COMPLETE SCRIPT
+--====================================================
+
+-- Services
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+--====================
+-- SETTINGS
+--====================
+local ChatSpam = false
+local BotLocked = false
+local TargetName = "RyZ HATERS"
+local WordIndex = 1
+local SpamThread = nil
+local PendingStart = false
+local LastMessageId = nil
+
+--====================
+-- OWNER / BAN SYSTEM
+--====================
+local OwnerIds = {
+    [LocalPlayer.UserId] = true
+}
+
+local BannedUsers = {} -- userId = true
+
+--====================
+-- WORD LIST
+--====================
+local Words = {
+    "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE","MATH","HISTORY",
+    "GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY","LABORATORY","EXPERIMENT","FORMULA",
+    "EQUATION","ENERGY","MOTION","SPACE","PLANET","GALAXY","UNIVERSE","QUANTUM",
+    "ATOM","MOLECULE","ELECTRICITY","TECHNOLOGY","SOFTWARE","HARDWARE","INTERNET",
+    "ALGORITHM","LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE"
+}
+
+--====================
+-- HELPERS
+--====================
+local function IsOwner(userId)
+    return OwnerIds[userId] == true
+end
+
+local function IsBanned(userId)
+    return BannedUsers[userId] == true
+end
+
+local function GetPlayerByName(name)
+    for _, plr in pairs(Players:GetPlayers()) do
+        if string.lower(plr.Name) == string.lower(name) then
+            return plr
+        end
+    end
+end
+
+--====================
+-- AUTO KICK BANNED
+--====================
+Players.PlayerAdded:Connect(function(player)
+    if IsBanned(player.UserId) then
+        task.wait(1)
+        player:Kick("You are banned from using this script.")
+    end
+end)
+
+--====================
+-- SEND CHAT
+--====================
+local function SendChat(msg)
+    pcall(function()
+        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+            TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
+        else
+            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+        end
+    end)
+end
+
+--====================
+-- SPAM MESSAGE
+--====================
+local function GetNextSpamMessage()
+    local word = Words[WordIndex]
+    WordIndex += 1
+    if WordIndex > #Words then WordIndex = 1 end
+    return "_________________________________________________________________________________________________ "
+        .. TargetName .. " TMKX MAI " .. word
+end
+
+--====================
+-- START SPAM
+--====================
+local function StartSpam()
+    if SpamThread then return end
+    SpamThread = task.spawn(function()
+        while ChatSpam do
+            SendChat(GetNextSpamMessage())
+            task.wait(2 + math.random() * 0.5) -- 2–2.5 sec
+        end
+        SpamThread = nil
+    end)
+end
+
+--====================
+-- COMMAND HANDLER
+--====================
+local function HandleCommand(msg, userId)
+    if msg == "" then return end
+    if IsBanned(userId) then return end
+    msg = string.lower(msg)
+
+    local owner = IsOwner(userId)
+
+    -- CHANGE HATER NAME (OWNER + USER)
+    local newName = msg:match("^bot change hater name to (.+)")
+    if newName then
+        TargetName = newName
+        WordIndex = 1
+        SendChat("_________________________________________________________________________________________________ hater name changed to " .. newName)
+        return
+    end
+
+    -- KICK USER (OWNER ONLY)
+    local kickName = msg:match("^kick user (.+)")
+    if kickName and owner then
+        local target = GetPlayerByName(kickName)
+        if target then
+            BannedUsers[target.UserId] = true
+            target:Kick("You have been kicked by bot owner.")
+            SendChat("_________________________________________________________________________________________________ kicked user " .. target.Name)
+        end
+        return
+    end
+
+    -- UNKICK USER (OWNER ONLY)
+    local unkickName = msg:match("^unkick user (.+)")
+    if unkickName and owner then
+        local target = GetPlayerByName(unkickName)
+        if target then
+            BannedUsers[target.UserId] = nil
+            SendChat("_________________________________________________________________________________________________ unbanned user " .. target.Name)
+        end
+        return
+    end
+
+    -- LOCK BOT (OWNER ONLY)
+    if msg == "lock bot" and owner then
+        BotLocked = true
+        ChatSpam = false
+        SendChat("_________________________________________________________________________________________________ bot locked 🔐")
+        return
+    end
+
+    -- UNLOCK BOT (OWNER ONLY)
+    if msg == "unlock bot" and owner then
+        BotLocked = false
+        SendChat("_________________________________________________________________________________________________ bot unlocked 🔓")
+        return
+    end
+
+    -- START SPAM (OWNER + USER)
+    if msg == "start spam" then
+        if BotLocked or ChatSpam or PendingStart then return end
+        PendingStart = true
+        SendChat("_________________________________________________________________________________________________ Spam starting in 20 seconds")
+        task.delay(20, function()
+            PendingStart = false
+            if not BotLocked then
+                ChatSpam = true
+                StartSpam()
+            end
+        end)
+        return
+    end
+
+    -- STOP SPAM (OWNER + USER)
+    if msg == "stop spam" or msg == "stop" then
+        ChatSpam = false
+        return
+    end
+
+    -- RESUME
+    if msg == "start" then
+        if not ChatSpam and not BotLocked then
+            ChatSpam = true
+            StartSpam()
+        end
+        return
+    end
+
+    -- GREET
+    if msg == "hi bot" or msg == "bot" then
+        SendChat("_________________________________________________________________________________________________ HELLO RYZEN MEM 💖")
+        return
+    end
+end
+
+--====================
+-- CHAT LISTENER (ANTI DOUBLE)
+--====================
+TextChatService.OnIncomingMessage = function(message)
+    if not message.TextSource then return end
+    if message.MessageId == LastMessageId then return end
+    LastMessageId = message.MessageId
+    HandleCommand(message.Text, message.TextSource.UserId)
+end
+
+--====================
+-- ORION UI
+--====================
+local Window = OrionLib:MakeWindow({
+    Name = "Rex Chat Bot",
+    SaveConfig = true,
+    ConfigFolder = "RexBot"
+})
+
+local Tab = Window:MakeTab({
+    Name = "Chat Bot",
+    Icon =
+
