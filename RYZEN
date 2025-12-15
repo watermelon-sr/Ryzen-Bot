@@ -1,12 +1,32 @@
 --====================================================
--- REX CHAT BOT | DELTA SAFE | FINAL COMPLETE SCRIPT
+-- REX CHAT BOT | DELTA SAFE | FINAL (OWNER + USER LIST)
 --====================================================
+
+-- Load Orion
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
 
 -- Services
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
+
+--====================
+-- 🔐 OWNER & USER LIST (EDIT HERE)
+--====================
+
+-- 👑 OWNERS (FULL CONTROL)
+local OwnerIds = {
+    [LocalPlayer.UserId] = true, -- YOU
+    -- [123456789] = true,       -- add more owner UserIds
+}
+
+-- 👥 ALLOWED USERS (CAN USE BOT)
+-- Leave empty = everyone allowed
+local AllowedUsers = {
+    -- [111111111] = true,
+    -- [222222222] = true
+}
 
 --====================
 -- SETTINGS
@@ -20,16 +40,12 @@ local PendingStart = false
 local LastMessageId = nil
 
 --====================
--- OWNER / BAN SYSTEM
+-- BAN SYSTEM
 --====================
-local OwnerIds = {
-    [LocalPlayer.UserId] = true
-}
-
 local BannedUsers = {} -- userId = true
 
 --====================
--- WORD LIST
+-- WORDS
 --====================
 local Words = {
     "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE","MATH","HISTORY",
@@ -46,14 +62,21 @@ local function IsOwner(userId)
     return OwnerIds[userId] == true
 end
 
+local function IsAllowed(userId)
+    if next(AllowedUsers) == nil then
+        return true -- everyone allowed
+    end
+    return AllowedUsers[userId] == true or IsOwner(userId)
+end
+
 local function IsBanned(userId)
     return BannedUsers[userId] == true
 end
 
 local function GetPlayerByName(name)
-    for _, plr in pairs(Players:GetPlayers()) do
-        if string.lower(plr.Name) == string.lower(name) then
-            return plr
+    for _, p in pairs(Players:GetPlayers()) do
+        if string.lower(p.Name) == string.lower(name) then
+            return p
         end
     end
 end
@@ -64,7 +87,7 @@ end
 Players.PlayerAdded:Connect(function(player)
     if IsBanned(player.UserId) then
         task.wait(1)
-        player:Kick("You are banned from using this script.")
+        player:Kick("You are banned from using this bot.")
     end
 end)
 
@@ -112,8 +135,9 @@ end
 local function HandleCommand(msg, userId)
     if msg == "" then return end
     if IsBanned(userId) then return end
-    msg = string.lower(msg)
+    if not IsAllowed(userId) then return end
 
+    msg = string.lower(msg)
     local owner = IsOwner(userId)
 
     -- CHANGE HATER NAME (OWNER + USER)
@@ -148,7 +172,7 @@ local function HandleCommand(msg, userId)
         return
     end
 
-    -- LOCK BOT (OWNER ONLY)
+    -- LOCK / UNLOCK (OWNER ONLY)
     if msg == "lock bot" and owner then
         BotLocked = true
         ChatSpam = false
@@ -156,7 +180,6 @@ local function HandleCommand(msg, userId)
         return
     end
 
-    -- UNLOCK BOT (OWNER ONLY)
     if msg == "unlock bot" and owner then
         BotLocked = false
         SendChat("_________________________________________________________________________________________________ bot unlocked 🔓")
@@ -178,7 +201,7 @@ local function HandleCommand(msg, userId)
         return
     end
 
-    -- STOP SPAM (OWNER + USER)
+    -- STOP SPAM
     if msg == "stop spam" or msg == "stop" then
         ChatSpam = false
         return
@@ -221,5 +244,34 @@ local Window = OrionLib:MakeWindow({
 
 local Tab = Window:MakeTab({
     Name = "Chat Bot",
-    Icon =
+    Icon = "rbxassetid://4483345998"
+})
+
+Tab:AddTextbox({
+    Name = "Hater Name",
+    Default = "RyZ HATERS",
+    TextDisappear = false,
+    Callback = function(v)
+        TargetName = v
+        WordIndex = 1
+    end
+})
+
+Tab:AddToggle({
+    Name = "Chat Spam",
+    Default = false,
+    Callback = function(v)
+        ChatSpam = v
+        if v then StartSpam() end
+    end
+})
+
+Tab:AddButton({
+    Name = "Destroy UI",
+    Callback = function()
+        OrionLib:Destroy()
+    end
+})
+
+OrionLib:Init()
 
