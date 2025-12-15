@@ -2,9 +2,6 @@
 -- REX CHAT BOT | DELTA SAFE | FINAL (OWNER + USER LIST)
 --====================================================
 
--- Load Orion
-local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
-
 -- Services
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
@@ -18,7 +15,7 @@ local LocalPlayer = Players.LocalPlayer
 -- 👑 OWNERS (FULL CONTROL)
 local OwnerIds = {
     [LocalPlayer.UserId] = true, -- YOU
-    -- [123456789] = true,       -- add more owner UserIds
+    -- [acu44a] = true,       -- add more owner UserIds
 }
 
 -- 👥 ALLOWED USERS (CAN USE BOT)
