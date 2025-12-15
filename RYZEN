@@ -21,7 +21,7 @@ local OwnerIds = {
 -- 👥 ALLOWED USERS (CAN USE BOT)
 -- Leave empty = everyone allowed
 local AllowedUsers = {
-    -- [acu44a] = true,
+    -- [111111111] = true,
     -- [222222222] = true
 }
 
