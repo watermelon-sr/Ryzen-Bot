@@ -15,6 +15,7 @@ local ChatSpam = false
 local TargetName = "ACURA KE HATERS"
 local WordIndex = 1
 local LastMessage = ""
+local HelloSent = false -- ensures hello message sent only once
 
 local Words = {
     "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE","MATH","HISTORY",
@@ -47,7 +48,7 @@ local function GetNextSpamMessage()
         WordIndex = 1
     end
 
-    local msg = "______________________________________________________________________________________________________________________________________________________________________ " .. TargetName .. " TMKX MAI " .. word
+    local msg = "________________________________________________________________________________________________________________________________________________________________ " .. TargetName .. " TMKX MAI " .. word
 
     -- Avoid duplicate consecutive messages
     if msg == LastMessage then
@@ -55,7 +56,7 @@ local function GetNextSpamMessage()
         if WordIndex > #Words then
             WordIndex = 1
         end
-        msg = "______________________________________________________________________________________________________________________________________________________________________ " .. TargetName .. " TMKX MAI " .. Words[WordIndex]
+        msg = "________________________________________________________________________________________________________________________________________________________________ " .. TargetName .. " TMKX MAI " .. Words[WordIndex]
     end
 
     LastMessage = msg
@@ -69,7 +70,10 @@ local function HandleChatCommand(message)
     message = string.lower(message)
 
     if message == "hi bot" or message == "bot" then
-        SendChat("______________________________________________________________________________________________________________________________________________________________________HELLO ACURA SIR 💖")
+        if not HelloSent then
+            SendChat("______________________________________________________________________________________________________________________________________________________________________HELLO ACURA SIR 💖")
+            HelloSent = true
+        end
         return
     end
 
@@ -79,7 +83,7 @@ local function HandleChatCommand(message)
             task.spawn(function()
                 while ChatSpam do
                     SendChat(GetNextSpamMessage())
-                    task.wait(math.random(3,5))
+                    task.wait(math.random(3,4)) -- delay 3-4 sec
                 end
             end)
         end
@@ -119,14 +123,14 @@ local Tab = Window:MakeTab({
     Icon = "rbxassetid://4483345998"
 })
 
--- Hater Name Textbox
+-- Hater Name Textbox (Editable GUI)
 Tab:AddTextbox({
-    Name = "Hater Name",
-    Default = "ACURA KE HATERS",
+    Name = "Target Name",
+    Default = TargetName,
     TextDisappear = false,
     Callback = function(Value)
-        TargetName = Value
-        WordIndex = 1 -- reset index
+        TargetName = Value -- updates target name immediately
+        WordIndex = 1 -- reset spam index so new name starts from first word
     end
 })
 
@@ -140,7 +144,7 @@ Tab:AddToggle({
             task.spawn(function()
                 while ChatSpam do
                     SendChat(GetNextSpamMessage())
-                    task.wait(math.random(3,5))
+                    task.wait(math.random(3,4)) -- delay 3-4 sec
                 end
             end)
         end
