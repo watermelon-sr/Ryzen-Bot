@@ -120,7 +120,7 @@ local function StartSpam()
     SpamThread = task.spawn(function()
         while ChatSpam do
             SendChat(GetNextSpamMessage())
-            task.wait(2 + math.random() * 0.5) -- 2–2.5 sec
+            task.wait(2 + math.random()) -- 2–3 sec
         end
         SpamThread = nil
     end)
