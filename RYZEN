@@ -21,7 +21,7 @@ local OwnerIds = {
 -- WRITE ALL NAMES IN LOWERCASE
 --====================
 local AllowedUsers = {
-    ["ngzerox"] = true,
+    ["denjifwher"] = true,
     ["ryzenmem"] = true,
     ["rexuser"] = true
 }
