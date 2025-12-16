@@ -1,5 +1,5 @@
 --====================================================
--- REX CHAT BOT | DELTA SAFE | USERNAME ACCESS FINAL
+-- REX CHAT BOT | DELTA SAFE | USERNAME ACCESS FINAL (FIXED)
 --====================================================
 
 -- Services
@@ -9,21 +9,20 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 --====================
--- 👑 OWNER (USERNAME NOT NEEDED, USERID USED)
+-- 👑 OWNER (USERID)
 --====================
 local OwnerIds = {
-    [ACU44A] = true
+	[ACU44A] = true
 }
 
 --====================
--- 👥 ALLOWED USERS (USERNAME ACCESS)
--- ONLY ROBLOX USERNAMES
+-- 👥 ALLOWED USERS (USERNAME ONLY)
 -- MUST BE LOWERCASE
 --====================
 local AllowedUsernames = {
-    ["ngzerox"] = true,
-    ["ryzenmem"] = true,
-    ["rexuser"] = true
+	["ngzerox"] = true,
+	["ryzenmem"] = true,
+	["rexuser"] = true
 }
 
 --====================
@@ -41,153 +40,155 @@ local LastMessageId = nil
 -- WORDS
 --====================
 local Words = {
-    "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE",
-    "MATH","HISTORY","GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY",
-    "LABORATORY","EXPERIMENT","FORMULA","EQUATION","ENERGY","MOTION",
-    "SPACE","PLANET","GALAXY","UNIVERSE","ATOM","MOLECULE",
-    "TECHNOLOGY","INTERNET","SOFTWARE","HARDWARE","ALGORITHM",
-    "LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE"
+	"BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE",
+	"MATH","HISTORY","GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY",
+	"LABORATORY","EXPERIMENT","FORMULA","EQUATION","ENERGY","MOTION",
+	"SPACE","PLANET","GALAXY","UNIVERSE","ATOM","MOLECULE",
+	"TECHNOLOGY","INTERNET","SOFTWARE","HARDWARE","ALGORITHM",
+	"LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE"
 }
 
 --====================
 -- ACCESS CHECK
 --====================
 local function IsOwner(userId)
-    return OwnerIds[userId] == true
+	return OwnerIds[userId] == true
 end
 
-local function IsAllowed(userId)
-    local player = Players:GetPlayerByUserId(userId)
-    if not player then return false end
+local function IsAllowed(userId, username)
+	-- Owner always allowed
+	if IsOwner(userId) then
+		return true
+	end
 
-    -- Owner always allowed
-    if IsOwner(userId) then
-        return true
-    end
+	-- Locked = only owner
+	if BotLocked then
+		return false
+	end
 
-    -- Locked = only owner
-    if BotLocked then
-        return false
-    end
-
-    -- USERNAME CHECK (NOT DISPLAY NAME)
-    local username = string.lower(player.Name)
-    return AllowedUsernames[username] == true
+	-- REAL USERNAME CHECK
+	username = string.lower(username)
+	return AllowedUsernames[username] == true
 end
 
 --====================
 -- SEND CHAT
 --====================
 local function SendChat(msg)
-    pcall(function()
-        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
-        else
-            ReplicatedStorage.DefaultChatSystemChatEvents
-                .SayMessageRequest:FireServer(msg, "All")
-        end
-    end)
+	pcall(function()
+		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
+		else
+			ReplicatedStorage.DefaultChatSystemChatEvents
+				.SayMessageRequest:FireServer(msg, "All")
+		end
+	end)
 end
 
 --====================
 -- SPAM MESSAGE
 --====================
 local function GetNextSpamMessage()
-    local word = Words[WordIndex]
-    WordIndex += 1
-    if WordIndex > #Words then WordIndex = 1 end
+	local word = Words[WordIndex]
+	WordIndex += 1
+	if WordIndex > #Words then
+		WordIndex = 1
+	end
 
-    return "________________________________________________________________________________ "
-        .. TargetName .. " TMKX MAI " .. word
+	return "________________________________________________________________________________ "
+		.. TargetName .. " TMKX MAI " .. word
 end
 
 --====================
 -- START SPAM
 --====================
 local function StartSpam()
-    if SpamThread then return end
+	if SpamThread then return end
 
-    SpamThread = task.spawn(function()
-        while ChatSpam do
-            SendChat(GetNextSpamMessage())
-            task.wait(2 + math.random())
-        end
-        SpamThread = nil
-    end)
+	SpamThread = task.spawn(function()
+		while ChatSpam do
+			SendChat(GetNextSpamMessage())
+			task.wait(2 + math.random())
+		end
+		SpamThread = nil
+	end)
 end
 
 --====================
 -- COMMAND HANDLER
 --====================
-local function HandleCommand(msg, userId)
-    if msg == "" then return end
-    if not IsAllowed(userId) then return end
+local function HandleCommand(msg, userId, username)
+	if msg == "" then return end
+	if not IsAllowed(userId, username) then return end
 
-    msg = string.lower(msg)
-    local owner = IsOwner(userId)
+	msg = string.lower(msg)
+	local owner = IsOwner(userId)
 
-    -- CHANGE TARGET NAME
-    local newName = msg:match("^bot change hater name to (.+)")
-    if newName then
-        TargetName = newName
-        WordIndex = 1
-        SendChat("______________________________ hater name changed to " .. newName)
-        return
-    end
+	-- CHANGE TARGET NAME
+	local newName = msg:match("^bot change hater name to (.+)")
+	if newName then
+		TargetName = newName
+		WordIndex = 1
+		SendChat("______________________________ hater name changed to " .. newName)
+		return
+	end
 
-    -- LOCK BOT (OWNER ONLY)
-    if msg == "lock bot" then
-        if not owner then return end
-        BotLocked = true
-        ChatSpam = false
-        SendChat("______________________________ bot locked 🔐")
-        return
-    end
+	-- LOCK BOT (OWNER ONLY)
+	if msg == "lock bot" then
+		if not owner then return end
+		BotLocked = true
+		ChatSpam = false
+		SendChat("______________________________ bot locked 🔐")
+		return
+	end
 
-    -- UNLOCK BOT (OWNER ONLY)
-    if msg == "unlock bot" then
-        if not owner then return end
-        BotLocked = false
-        SendChat("______________________________ bot unlocked 🔓")
-        return
-    end
+	-- UNLOCK BOT (OWNER ONLY)
+	if msg == "unlock bot" then
+		if not owner then return end
+		BotLocked = false
+		SendChat("______________________________ bot unlocked 🔓")
+		return
+	end
 
-    -- START SPAM
-    if msg == "start spam" then
-        if BotLocked or ChatSpam or PendingStart then return end
-        PendingStart = true
-        SendChat("______________________________ spam starting in 20 seconds")
-        task.delay(20, function()
-            PendingStart = false
-            if not BotLocked then
-                ChatSpam = true
-                StartSpam()
-            end
-        end)
-        return
-    end
+	-- START SPAM
+	if msg == "start spam" then
+		if BotLocked or ChatSpam or PendingStart then return end
+		PendingStart = true
+		SendChat("______________________________ spam starting in 20 seconds")
+		task.delay(20, function()
+			PendingStart = false
+			if not BotLocked then
+				ChatSpam = true
+				StartSpam()
+			end
+		end)
+		return
+	end
 
-    -- STOP
-    if msg == "stop spam" or msg == "stop" then
-        ChatSpam = false
-        return
-    end
+	-- STOP SPAM
+	if msg == "stop spam" or msg == "stop" then
+		ChatSpam = false
+		return
+	end
 
-    -- GREET
-    if msg == "hi bot" or msg == "bot" then
-        SendChat("______________________________ HELLO RYZEN MEM 💖")
-        return
-    end
+	-- GREET
+	if msg == "hi bot" or msg == "bot" then
+		SendChat("______________________________ HELLO " .. string.upper(username) .. " 💖")
+		return
+	end
 end
 
 --====================
--- CHAT LISTENER (FIXED)
+-- CHAT LISTENER (FIXED, NO DOUBLE RESPOND)
 --====================
 TextChatService.OnIncomingMessage = function(message)
-    if not message.TextSource then return end
-    if message.MessageId == LastMessageId then return end
-    LastMessageId = message.MessageId
+	if not message.TextSource then return end
+	if message.MessageId == LastMessageId then return end
+	LastMessageId = message.MessageId
 
-    HandleCommand(message.Text, message.TextSource.UserId)
+	local userId = message.TextSource.UserId
+	local username = message.TextSource.Name -- REAL USERNAME
+
+	HandleCommand(message.Text, userId, username)
 end
 
