@@ -1,5 +1,5 @@
 --====================================================
--- REX CHAT BOT | DELTA SAFE | NAME ACCESS FINAL
+-- REX CHAT BOT | DELTA SAFE | USERNAME ACCESS FINAL
 --====================================================
 
 -- Services
@@ -9,19 +9,19 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
 --====================
--- 👑 OWNER
+-- 👑 OWNER (USERNAME NOT NEEDED, USERID USED)
 --====================
 local OwnerIds = {
-    ["ACU44A"] = true
+    [ACU44A] = true
 }
 
 --====================
--- 👥 ALLOWED USERS (BY NAME ONLY)
--- ONLY THESE NAMES CAN USE THE BOT
--- WRITE ALL NAMES IN LOWERCASE
+-- 👥 ALLOWED USERS (USERNAME ACCESS)
+-- ONLY ROBLOX USERNAMES
+-- MUST BE LOWERCASE
 --====================
-local AllowedUsers = {
-    ["denjifwher"] = true,
+local AllowedUsernames = {
+    ["ngzerox"] = true,
     ["ryzenmem"] = true,
     ["rexuser"] = true
 }
@@ -38,20 +38,19 @@ local PendingStart = false
 local LastMessageId = nil
 
 --====================
--- WORD LIST
+-- WORDS
 --====================
 local Words = {
     "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE",
     "MATH","HISTORY","GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY",
-    "LABORATORY","EXPERIMENT","FORMULA","EQUATION","ENERGY",
-    "MOTION","SPACE","PLANET","GALAXY","UNIVERSE","ATOM",
-    "MOLECULE","TECHNOLOGY","INTERNET","SOFTWARE","HARDWARE",
-    "ALGORITHM","LOGIC","MEMORY","CREATIVITY","DISCOVERY",
-    "INNOVATION","FUTURE"
+    "LABORATORY","EXPERIMENT","FORMULA","EQUATION","ENERGY","MOTION",
+    "SPACE","PLANET","GALAXY","UNIVERSE","ATOM","MOLECULE",
+    "TECHNOLOGY","INTERNET","SOFTWARE","HARDWARE","ALGORITHM",
+    "LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE"
 }
 
 --====================
--- HELPERS
+-- ACCESS CHECK
 --====================
 local function IsOwner(userId)
     return OwnerIds[userId] == true
@@ -66,14 +65,14 @@ local function IsAllowed(userId)
         return true
     end
 
-    -- Block all non-owners when locked
+    -- Locked = only owner
     if BotLocked then
         return false
     end
 
-    -- Name-based access
-    local name = string.lower(player.Name)
-    return AllowedUsers[name] == true
+    -- USERNAME CHECK (NOT DISPLAY NAME)
+    local username = string.lower(player.Name)
+    return AllowedUsernames[username] == true
 end
 
 --====================
@@ -84,7 +83,8 @@ local function SendChat(msg)
         if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
             TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
         else
-            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+            ReplicatedStorage.DefaultChatSystemChatEvents
+                .SayMessageRequest:FireServer(msg, "All")
         end
     end)
 end
@@ -97,7 +97,7 @@ local function GetNextSpamMessage()
     WordIndex += 1
     if WordIndex > #Words then WordIndex = 1 end
 
-    return "____________________________________________________________________________________________________________________________________________________________________ "
+    return "________________________________________________________________________________ "
         .. TargetName .. " TMKX MAI " .. word
 end
 
@@ -126,12 +126,12 @@ local function HandleCommand(msg, userId)
     msg = string.lower(msg)
     local owner = IsOwner(userId)
 
-    -- CHANGE HATER NAME
+    -- CHANGE TARGET NAME
     local newName = msg:match("^bot change hater name to (.+)")
     if newName then
         TargetName = newName
         WordIndex = 1
-        SendChat("_____________________________________________________________________________________________________________________________________________________________ hater name changed to " .. newName)
+        SendChat("______________________________ hater name changed to " .. newName)
         return
     end
 
@@ -140,15 +140,15 @@ local function HandleCommand(msg, userId)
         if not owner then return end
         BotLocked = true
         ChatSpam = false
-        SendChat("_______________________________________________________________________________________________________________________________________________________bot locked 🔐")
-       SendCha
+        SendChat("______________________________ bot locked 🔐")
+        return
     end
 
     -- UNLOCK BOT (OWNER ONLY)
     if msg == "unlock bot" then
         if not owner then return end
         BotLocked = false
-        SendChat("_______________________________________________________________________________________________________________________________________________________bot unlocked 🔓")
+        SendChat("______________________________ bot unlocked 🔓")
         return
     end
 
@@ -156,7 +156,7 @@ local function HandleCommand(msg, userId)
     if msg == "start spam" then
         if BotLocked or ChatSpam or PendingStart then return end
         PendingStart = true
-        SendChat("______________________________________________________________________________________________________________________________________________________________________ spam starting in 20 seconds")
+        SendChat("______________________________ spam starting in 20 seconds")
         task.delay(20, function()
             PendingStart = false
             if not BotLocked then
@@ -167,30 +167,21 @@ local function HandleCommand(msg, userId)
         return
     end
 
-    -- STOP SPAM
+    -- STOP
     if msg == "stop spam" or msg == "stop" then
         ChatSpam = false
         return
     end
 
-    -- RESUME
-    if msg == "start" then
-        if not ChatSpam and not BotLocked then
-            ChatSpam = true
-            StartSpam()
-        end
-        return
-    end
-
     -- GREET
     if msg == "hi bot" or msg == "bot" then
-        SendChat("______________________________________________________________________________________________________________________________________________________________________ HELLO RYZEN MEM 💖")
+        SendChat("______________________________ HELLO RYZEN MEM 💖")
         return
     end
 end
 
 --====================
--- CHAT LISTENER (ANTI DOUBLE)
+-- CHAT LISTENER (FIXED)
 --====================
 TextChatService.OnIncomingMessage = function(message)
     if not message.TextSource then return end
@@ -199,46 +190,4 @@ TextChatService.OnIncomingMessage = function(message)
 
     HandleCommand(message.Text, message.TextSource.UserId)
 end
-
---====================
--- ORION UI
---====================
-local Window = OrionLib:MakeWindow({
-    Name = "Rex Chat Bot",
-    SaveConfig = true,
-    ConfigFolder = "RexBot"
-})
-
-local Tab = Window:MakeTab({
-    Name = "Chat Bot",
-    Icon = "rbxassetid://4483345998"
-})
-
-Tab:AddTextbox({
-    Name = "Hater Name",
-    Default = TargetName,
-    TextDisappear = false,
-    Callback = function(v)
-        TargetName = v
-        WordIndex = 1
-    end
-})
-
-Tab:AddToggle({
-    Name = "Chat Spam",
-    Default = false,
-    Callback = function(v)
-        ChatSpam = v
-        if v then StartSpam() end
-    end
-})
-
-Tab:AddButton({
-    Name = "Destroy UI",
-    Callback = function()
-        OrionLib:Destroy()
-    end
-})
-
-OrionLib:Init()
 
