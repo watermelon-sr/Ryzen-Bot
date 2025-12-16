@@ -14,7 +14,9 @@ local LocalPlayer = Players.LocalPlayer
 local AccessUsers = {
     ["ACU44A"] = true,     -- YOU
     [""] = true,
-    ["FriendName2"] = true
+    ["FriendName2"] = true, 
+    ["FriendName2"] = true, 
+    ["denjifwher"] = true 
 }
 
 --====================
