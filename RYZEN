@@ -12,7 +12,7 @@ local LocalPlayer = Players.LocalPlayer
 -- 👑 OWNER
 --====================
 local OwnerIds = {
-    [LocalPlayer.UserId] = true
+    ["ACU44A"] = true
 }
 
 --====================
@@ -97,7 +97,7 @@ local function GetNextSpamMessage()
     WordIndex += 1
     if WordIndex > #Words then WordIndex = 1 end
 
-    return "________________________________________________________________________________ "
+    return "____________________________________________________________________________________________________________________________________________________________________ "
         .. TargetName .. " TMKX MAI " .. word
 end
 
@@ -131,7 +131,7 @@ local function HandleCommand(msg, userId)
     if newName then
         TargetName = newName
         WordIndex = 1
-        SendChat("________________________________ hater name changed to " .. newName)
+        SendChat("_____________________________________________________________________________________________________________________________________________________________ hater name changed to " .. newName)
         return
     end
 
@@ -140,15 +140,15 @@ local function HandleCommand(msg, userId)
         if not owner then return end
         BotLocked = true
         ChatSpam = false
-        SendChat("________________________________ bot locked 🔐")
-        return
+        SendChat("_______________________________________________________________________________________________________________________________________________________bot locked 🔐")
+       SendCha
     end
 
     -- UNLOCK BOT (OWNER ONLY)
     if msg == "unlock bot" then
         if not owner then return end
         BotLocked = false
-        SendChat("________________________________ bot unlocked 🔓")
+        SendChat("_______________________________________________________________________________________________________________________________________________________bot unlocked 🔓")
         return
     end
 
@@ -156,7 +156,7 @@ local function HandleCommand(msg, userId)
     if msg == "start spam" then
         if BotLocked or ChatSpam or PendingStart then return end
         PendingStart = true
-        SendChat("________________________________ spam starting in 20 seconds")
+        SendChat("______________________________________________________________________________________________________________________________________________________________________ spam starting in 20 seconds")
         task.delay(20, function()
             PendingStart = false
             if not BotLocked then
@@ -184,7 +184,7 @@ local function HandleCommand(msg, userId)
 
     -- GREET
     if msg == "hi bot" or msg == "bot" then
-        SendChat("________________________________ HELLO RYZEN MEM 💖")
+        SendChat("______________________________________________________________________________________________________________________________________________________________________ HELLO RYZEN MEM 💖")
         return
     end
 end
