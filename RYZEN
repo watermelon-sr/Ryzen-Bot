@@ -15,13 +15,13 @@ local LocalPlayer = Players.LocalPlayer
 -- 👑 OWNERS (FULL CONTROL)
 local OwnerIds = {
     [LocalPlayer.UserId] = true, -- YOU
-    -- [acu44a] = true,       -- add more owner UserIds
+    -- [ACU44A] = true,       -- add more owner UserIds
 }
 
 -- 👥 ALLOWED USERS (CAN USE BOT)
 -- Leave empty = everyone allowed
 local AllowedUsers = {
-    -- [111111111] = true,
+    -- [ACU44A] = true,
     -- [222222222] = true
 }
 
