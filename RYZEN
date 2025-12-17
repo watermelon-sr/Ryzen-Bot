@@ -12,11 +12,10 @@ local LocalPlayer = Players.LocalPlayer
 -- ACCESS CONTROL
 --====================
 local AccessUsers = {
-    ["ACU44A"] = true,     -- YOU
-    ["zyyrooo0"] = true,
-    ["FriendName2"] = true, 
-    ["FriendName2"] = true, 
-    ["denjifwher"] = true 
+	["ACU44A"] = true,
+	["zyyrooo0"] = true,
+	["FriendName2"] = true,
+	["denjifwher"] = true
 }
 
 --====================
@@ -30,137 +29,230 @@ local SpamThread = nil
 local PendingStart = false
 local LastMessageId = nil
 
+--====================
+-- WORDS (300+)
+--====================
 local Words = {
-    "BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE","MATH","HISTORY",
-    "GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY","LABORATORY","EXPERIMENT","FORMULA",
-    "EQUATION","ENERGY","MOTION","SPACE","PLANET","GALAXY","UNIVERSE","QUANTUM",
-    "ATOM","MOLECULE","ELECTRICITY","TECHNOLOGY","SOFTWARE","HARDWARE","INTERNET",
-    "ALGORITHM","LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE"
+"BUILDING","CLASSROOM","STUDENT","KNOWLEDGE","LEARNING","SCIENCE","MATH","HISTORY",
+"GEOGRAPHY","PHYSICS","CHEMISTRY","BIOLOGY","LABORATORY","EXPERIMENT","FORMULA",
+"EQUATION","ENERGY","MOTION","SPACE","PLANET","GALAXY","UNIVERSE","QUANTUM",
+"ATOM","MOLECULE","ELECTRICITY","TECHNOLOGY","SOFTWARE","HARDWARE","INTERNET",
+"ALGORITHM","LOGIC","MEMORY","CREATIVITY","DISCOVERY","INNOVATION","FUTURE",
+
+"RIVER","MOUNTAIN","OCEAN","FOREST","DESERT","ISLAND","WEATHER","CLIMATE","RAIN",
+"STORM","CLOUD","THUNDER","LIGHTNING","RAINBOW","SUNLIGHT","MOONLIGHT","STAR",
+"COMET","ASTEROID","NEBULA","BLACKHOLE","GRAVITY","TIME","DIMENSION","REALITY",
+
+"ENGINE","MOTOR","VEHICLE","AIRPLANE","ROCKET","SATELLITE","SIGNAL","NETWORK",
+"SERVER","DATABASE","ENCRYPTION","SECURITY","FIREWALL","PROTOCOL","PACKET",
+
+"KEYBOARD","MOUSE","SCREEN","DISPLAY","PIXEL","GRAPHICS","RENDER","ANIMATION",
+"FRAME","CAMERA","LENS","FOCUS","ZOOM","RESOLUTION","QUALITY",
+
+"LANGUAGE","SYNTAX","VARIABLE","FUNCTION","LOOP","CONDITION","ARRAY","TABLE",
+"STRING","INTEGER","BOOLEAN","SCRIPT","EXECUTE","PROCESS","THREAD","TASK",
+
+"MARKET","ECONOMY","TRADE","BUSINESS","COMPANY","INDUSTRY","PRODUCT","SERVICE",
+"BRAND","CUSTOMER","CLIENT","INVESTMENT","PROFIT","LOSS","REVENUE","CAPITAL",
+
+"MUSIC","MELODY","RHYTHM","BEAT","HARMONY","SONG","VOCAL","INSTRUMENT","PIANO",
+"GUITAR","DRUM","BASS","VIOLIN","FLUTE","SAXOPHONE","ORCHESTRA",
+
+"SPORT","GAME","PLAYER","SCORE","MATCH","TEAM","COACH","TRAINING","PRACTICE",
+"FITNESS","STRENGTH","SPEED","AGILITY","BALANCE","ENDURANCE","STAMINA",
+
+"CITY","VILLAGE","COUNTRY","NATION","BORDER","MAP","ROAD","HIGHWAY","BRIDGE",
+"TUNNEL","TRAFFIC","SIGNAL","TRANSPORT","TRAVEL","JOURNEY","DESTINATION"
 }
 
 --====================
 -- SEND CHAT
 --====================
 local function SendChat(msg)
-    pcall(function()
-        if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
-            TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
-        else
-            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
-        end
-    end)
+	pcall(function()
+		if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+			TextChatService.TextChannels.RBXGeneral:SendAsync(msg)
+		else
+			ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+		end
+	end)
 end
 
 --====================
 -- SPAM MESSAGE
 --====================
 local function GetNextSpamMessage()
-    local word = Words[WordIndex]
-    WordIndex += 1
-    if WordIndex > #Words then WordIndex = 1 end
+	local word = Words[WordIndex]
+	WordIndex += 1
+	if WordIndex > #Words then WordIndex = 1 end
 
-    return "_____________________________________________________________________________________________________________________________________________________________ "
-        .. TargetName .. " TMKX MAI " .. word
+	return "_____________________________________________________________________________________________________________________________________________________________ "
+		.. TargetName .. " TMKX MAI " .. word
 end
 
 --====================
 -- START SPAM LOOP
 --====================
 local function StartSpam()
-    if SpamThread then return end
-    SpamThread = task.spawn(function()
-        while ChatSpam do
-            SendChat(GetNextSpamMessage())
-            task.wait(2 + math.random()) -- ✅ 2–3 seconds
-        end
-        SpamThread = nil
-    end)
+	if SpamThread then return end
+	SpamThread = task.spawn(function()
+		while ChatSpam do
+			SendChat(GetNextSpamMessage())
+			task.wait(2 + math.random())
+		end
+		SpamThread = nil
+	end)
 end
 
 --====================
 -- CHAT COMMAND HANDLER
 --====================
 local function HandleCommand(msg)
-    msg = string.lower(msg)
+	msg = string.lower(msg)
 
-    -- CHANGE HATER NAME
-    local newName = msg:match("^bot change hater name to (.+)")
-    if newName then
-        TargetName = newName
-        WordIndex = 1
-        SendChat("___________________________________________________________________________________________________________________________________________________________ hater name changed to " .. newName)
-        return
-    end
+	local newName = msg:match("^bot change hater name to (.+)")
+	if newName then
+		TargetName = newName
+		WordIndex = 1
+		SendChat("___________________________________________________________________________________________________________________________________________________________ hater name changed to " .. newName)
+		return
+	end
 
-    -- BOT LOCK
-    if BotLocked then
-        if msg == "unlock bot" then
-            BotLocked = false
-            SendChat("_____________________________________________________________________________________________________________________________________________________ bot unlocked🔓")
-        end
-        return
-    end
+	if BotLocked then
+		if msg == "unlock bot" then
+			BotLocked = false
+			SendChat("_____________________________________________________________________________________________________________________________________________________ bot unlocked🔓")
+		end
+		return
+	end
 
-    if msg == "lock bot" then
-        BotLocked = true
-        ChatSpam = false
-        SendChat("___________________________________________________________________________________________________________________________________________________ bot locked 🔐")
-        return
-    end
+	if msg == "lock bot" then
+		BotLocked = true
+		ChatSpam = false
+		SendChat("___________________________________________________________________________________________________________________________________________________ bot locked 🔐")
+		return
+	end
 
-    -- HELLO
-    if msg == "hi bot" or msg == "bot" then
-        SendChat("___________________________________________________________________________________________________________________________________________________________________HELLO RYZEN MEMBRS 💖")
-        return
-    end
+	if msg == "hi bot" or msg == "bot" then
+		SendChat("___________________________________________________________________________________________________________________________________________________________________HELLO RYZEN MEMBRS 💖")
+		return
+	end
 
-    -- START SPAM (20s DELAY)
-    if msg == "start spam" then
-        if ChatSpam or PendingStart then return end
-        PendingStart = true
-        SendChat("___________________________________________________________________________________________________________________________________________ Spam starting in 20 seconds script by Rex")
+	if msg == "start spam" then
+		if ChatSpam or PendingStart then return end
+		PendingStart = true
+		SendChat("___________________________________________________________________________________________________________________________________________ Spam starting in 20 seconds script by Rex")
+		task.delay(20,function()
+			PendingStart = false
+			if not BotLocked then
+				ChatSpam = true
+				StartSpam()
+			end
+		end)
+		return
+	end
 
-        task.delay(20, function()
-            PendingStart = false
-            if not BotLocked then
-                ChatSpam = true
-                StartSpam()
-            end
-        end)
-        return
-    end
+	if msg == "stop spam" or msg == "stop" then
+		ChatSpam = false
+		return
+	end
 
-    -- STOP / PAUSE
-    if msg == "stop spam" or msg == "stop" then
-        ChatSpam = false
-        return
-    end
-
-    -- RESUME
-    if msg == "start" then
-        if not ChatSpam then
-            ChatSpam = true
-            StartSpam()
-        end
-        return
-    end
+	if msg == "start" then
+		if not ChatSpam then
+			ChatSpam = true
+			StartSpam()
+		end
+		return
+	end
 end
 
 --====================
--- SINGLE CHAT LISTENER (ACCESS + NO DOUBLE)
+-- CHAT LISTENER
 --====================
 TextChatService.OnIncomingMessage = function(message)
-    if not message.TextSource then return end
-    if message.MessageId == LastMessageId then return end
+	if not message.TextSource then return end
+	if message.MessageId == LastMessageId then return end
 
-    local userId = message.TextSource.UserId
-    local player = Players:GetPlayerByUserId(userId)
-    if not player then return end
+	local player = Players:GetPlayerByUserId(message.TextSource.UserId)
+	if not player then return end
+	if not AccessUsers[player.Name] then return end
 
-    -- ACCESS CHECK
-    if not AccessUsers[player.Name] then return end
-
-    LastMessageId = message.MessageId
-    HandleCommand(message.Text)
+	LastMessageId = message.MessageId
+	HandleCommand(message.Text)
 end
+
+--====================================================
+-- SMALL CUSTOMIZE BOX | RexBot.v1
+--====================================================
+task.spawn(function()
+	pcall(function()
+		local gui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
+		gui.Name = "RexBotV1"
+
+		local frame = Instance.new("Frame", gui)
+		frame.Size = UDim2.new(0,220,0,140)
+		frame.Position = UDim2.new(0,20,0.5,-70)
+		frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+		frame.Active = true
+		frame.Draggable = true
+		Instance.new("UICorner", frame)
+
+		local title = Instance.new("TextLabel", frame)
+		title.Size = UDim2.new(1,0,0,30)
+		title.Text = "RexBot.v1"
+		title.Font = Enum.Font.GothamBold
+		title.TextSize = 16
+		title.TextColor3 = Color3.new(1,1,1)
+		title.BackgroundTransparency = 1
+
+		local box = Instance.new("TextBox", frame)
+		box.Size = UDim2.new(1,-20,0,30)
+		box.Position = UDim2.new(0,10,0,40)
+		box.Text = TargetName
+		box.PlaceholderText = "Edit Hater Name"
+		box.Font = Enum.Font.Gotham
+		box.TextSize = 14
+		box.TextColor3 = Color3.new(1,1,1)
+		box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+		Instance.new("UICorner", box)
+
+		box.FocusLost:Connect(function()
+			if box.Text ~= "" then
+				TargetName = box.Text
+				WordIndex = 1
+			end
+		end)
+
+		local start = Instance.new("TextButton", frame)
+		start.Size = UDim2.new(0.45,0,0,30)
+		start.Position = UDim2.new(0.05,0,0,80)
+		start.Text = "START"
+		start.Font = Enum.Font.GothamBold
+		start.TextSize = 14
+		start.BackgroundColor3 = Color3.fromRGB(45,45,45)
+		start.TextColor3 = Color3.new(1,1,1)
+		Instance.new("UICorner", start)
+
+		start.MouseButton1Click:Connect(function()
+			if not ChatSpam then
+				ChatSpam = true
+				StartSpam()
+			end
+		end)
+
+		local stop = Instance.new("TextButton", frame)
+		stop.Size = UDim2.new(0.45,0,0,30)
+		stop.Position = UDim2.new(0.5,0,0,80)
+		stop.Text = "STOP"
+		stop.Font = Enum.Font.GothamBold
+		stop.TextSize = 14
+		stop.BackgroundColor3 = Color3.fromRGB(45,45,45)
+		stop.TextColor3 = Color3.new(1,1,1)
+		Instance.new("UICorner", stop)
+
+		stop.MouseButton1Click:Connect(function()
+			ChatSpam = false
+		end)
+	end)
+end)
 
